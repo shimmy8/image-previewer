@@ -6,12 +6,11 @@ type Config struct {
 }
 
 type HttpConfig struct {
-	Port int `env:"IMG_PREVIEWER_HTTP_PORT" default:"8000"`
+	Port int `env:"HTTP_PORT" default:"8000"`
 }
 
 type CacheConfig struct {
-	MaxSizeBytes int `env:"IMG_PREVIEWER_CACHE_MAX_SIZE_BYTES" default:"1024"`
-	MaxElements  int `env:"IMG_PREVIEWER_CACHE_MAX_ELEMENTS" default:"100"`
+	MaxSizeMB int `env:"CACHE_MAX_SIZE_MB" default:"256"`
 }
 
 func New() *Config {
