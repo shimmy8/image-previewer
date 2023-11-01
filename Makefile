@@ -11,6 +11,9 @@ build:
 run: build-img
 	docker-compose up -d  $(SERVICE_NAME)
 
+test:
+	go test -race ./internal/...
+
 build-img:
 	docker build \
 		--build-arg=LDFLAGS="$(LDFLAGS)" \
