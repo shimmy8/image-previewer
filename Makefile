@@ -1,4 +1,4 @@
-BIN := "./bin/calendar"
+BIN := "./bin/image-previewer"
 DOCKER_IMG="image-previewer-img"
 SERVICE_NAME="image-previewer"
 

@@ -1,0 +1,48 @@
+package server
+
+import (
+	"net/http"
+	"net/http/httptest"
+	"strings"
+	"testing"
+
+	"github.com/shimmy8/image-previewer/internal/app"
+	"github.com/shimmy8/image-previewer/internal/config"
+	"github.com/stretchr/testify/require"
+	"go.uber.org/zap"
+)
+
+func TestServerErrors(t *testing.T) {
+	logger, _ := zap.NewDevelopment()
+	mockApp := app.New(&config.CacheConfig{}, logger)
+
+	mockHandler := Handler{app: mockApp, logger: logger}
+
+	t.Run("test request params errors", func(t *testing.T) {
+		tests := []struct {
+			URL        string
+			StatusCode int
+			Error      error
+		}{
+			{URL: "/fill/", StatusCode: 400, Error: ErrInvalidRequestParams},
+			{URL: "/fill/200/", StatusCode: 400, Error: ErrInvalidRequestParams},
+			{URL: "/fill/200/300", StatusCode: 400, Error: ErrInvalidRequestParams},
+			{URL: "/fill/20a/300/test", StatusCode: 400, Error: ErrInvalidTargetWidth},
+			{URL: "/fill/200/30i/test", StatusCode: 400, Error: ErrInvalidTargetHeight},
+		}
+
+		for _, tt := range tests {
+			tt := tt
+			t.Run("expected err "+tt.Error.Error(), func(t *testing.T) {
+				req := httptest.NewRequest(http.MethodGet, tt.URL, nil)
+				res := httptest.NewRecorder()
+
+				mockHandler.handleResizeRequest(res, req)
+
+				require.Equal(t, tt.StatusCode, res.Result().StatusCode)
+				require.Equal(t, tt.Error.Error(), strings.TrimRight(res.Body.String(), "\n"))
+			})
+		}
+	})
+
+}

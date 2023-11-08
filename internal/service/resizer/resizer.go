@@ -2,7 +2,6 @@ package resizer
 
 import (
 	"context"
-	"image"
 )
 
 type Resizer struct {
@@ -13,7 +12,7 @@ func New() *Resizer {
 	return &Resizer{}
 }
 
-func (r *Resizer) ResizeImage(ctx context.Context, image image.Image, targetWitdh int, targetHeigth int) (image.Image, error) {
+func (r *Resizer) ResizeImage(ctx context.Context, imageBytes []byte, targetWitdh int, targetHeigth int) ([]byte, error) {
 	//TODO
 	return nil, nil
 }

@@ -4,3 +4,8 @@ services:
   image-previewer:
     image: "image-previewer-img"
     build: .
+    environment:
+      HTTP_PORT: 8080
+      CACHE_MAX_SIZE_MB: 256
+    ports:
+      - "8080:8080"

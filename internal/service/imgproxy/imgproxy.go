@@ -2,7 +2,6 @@ package imgproxy
 
 import (
 	"context"
-	"image"
 )
 
 type ImgProxy struct {
@@ -13,7 +12,7 @@ func New() *ImgProxy {
 	return &ImgProxy{}
 }
 
-func (iprx *ImgProxy) GetImage(ctx context.Context, url string, headers map[string]string) (image.Image, error) {
+func (iprx *ImgProxy) GetImage(ctx context.Context, url string, headers map[string][]string) ([]byte, error) {
 	// TODO
 	return nil, nil
 }
