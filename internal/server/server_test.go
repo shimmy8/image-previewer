@@ -29,6 +29,8 @@ func TestServerErrors(t *testing.T) {
 			{URL: "/fill/200/300", StatusCode: 400, Error: ErrInvalidRequestParams},
 			{URL: "/fill/20a/300/test", StatusCode: 400, Error: ErrInvalidTargetWidth},
 			{URL: "/fill/200/30i/test", StatusCode: 400, Error: ErrInvalidTargetHeight},
+			{URL: "/fill/200/300/", StatusCode: 400, Error: ErrInvalidURL},
+			{URL: "/fill/200/300/test", StatusCode: 400, Error: ErrInvalidURL},
 		}
 
 		for _, tt := range tests {

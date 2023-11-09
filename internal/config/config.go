@@ -17,7 +17,8 @@ type HttpConfig struct {
 }
 
 type CacheConfig struct {
-	MaxSizeMB int `env:"CACHE_MAX_SIZE_MB" default:"256"`
+	MaxSize int    `env:"CACHE_MAX_SIZE" default:"50"`
+	Dir     string `env:"CACHE_DIR" default:"./filecache"`
 }
 
 func New() (*Config, error) {

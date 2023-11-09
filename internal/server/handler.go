@@ -3,6 +3,7 @@ package server
 import (
 	"context"
 	"net/http"
+	"net/url"
 	"strconv"
 	"strings"
 
@@ -55,7 +56,21 @@ func (h *Handler) handleResizeRequest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	result, err := h.app.ResizeImage(h.ctx, r.Header, pathArgs[2], targetWidth, targetHeight)
+	imgUrl, err := url.Parse(pathArgs[2])
+	if err != nil {
+		http.Error(w, ErrInvalidURL.Error(), http.StatusBadRequest)
+		return
+	}
+	if imgUrl.Host == "" || imgUrl.Path == "" {
+		http.Error(w, ErrInvalidURL.Error(), http.StatusBadRequest)
+		return
+	}
+
+	if imgUrl.Scheme == "" {
+		imgUrl.Scheme = "https"
+	}
+
+	result, err := h.app.ResizeImage(h.ctx, r.Header, imgUrl.String(), targetWidth, targetHeight)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
