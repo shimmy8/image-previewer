@@ -8,11 +8,11 @@ import (
 )
 
 type Config struct {
-	Http  *HttpConfig
+	HTTP  *HTTPConfig
 	Cache *CacheConfig
 }
 
-type HttpConfig struct {
+type HTTPConfig struct {
 	Port int `env:"HTTP_PORT" default:"8000"`
 }
 
@@ -22,7 +22,7 @@ type CacheConfig struct {
 }
 
 func New() (*Config, error) {
-	httpCnf := &HttpConfig{}
+	httpCnf := &HTTPConfig{}
 	if err := parseEnv(httpCnf); err != nil {
 		return nil, err
 	}
@@ -32,7 +32,7 @@ func New() (*Config, error) {
 		return nil, err
 	}
 
-	return &Config{Http: httpCnf, Cache: cacheCnf}, nil
+	return &Config{HTTP: httpCnf, Cache: cacheCnf}, nil
 }
 
 func parseEnv(cnf interface{}) error {

@@ -76,7 +76,6 @@ func (lst *list) Remove(i *ListItem) {
 	}
 
 	lst.length--
-	i = nil
 }
 
 func (lst *list) MoveToFront(i *ListItem) {

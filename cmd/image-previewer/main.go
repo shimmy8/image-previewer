@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"os/signal"
 	"syscall"
 
@@ -14,7 +15,11 @@ import (
 func main() {
 	// create logger
 	logger := zap.Must(zap.NewProduction())
-	defer logger.Sync()
+	defer func() {
+		if err := logger.Sync(); err != nil {
+			fmt.Println(err)
+		}
+	}()
 
 	logger.Info("Starting app")
 
@@ -24,7 +29,7 @@ func main() {
 	}
 
 	app := app.New(config.Cache, logger.Named("app"))
-	server := server.New(config.Http, app, logger.Named("server"))
+	server := server.New(config.HTTP, app, logger.Named("server"))
 
 	ctx, cancel := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM, syscall.SIGHUP)
 	defer cancel()
@@ -42,5 +47,4 @@ func main() {
 	if err := server.Start(ctx); err != nil {
 		cancel()
 	}
-
 }

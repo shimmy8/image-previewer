@@ -14,6 +14,9 @@ run: build-img
 test:
 	go test -race ./internal/...
 
+lint:
+	golangci-lint run
+
 build-img:
 	docker build \
 		--build-arg=LDFLAGS="$(LDFLAGS)" \

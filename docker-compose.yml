@@ -9,3 +9,14 @@ services:
       CACHE_MAX_SIZE: 50
     ports:
       - "8080:8080"
+
+  nginx:
+    image: nginx:alpine
+    expose:
+      - "80"
+    ports:
+      - "80:80"
+    depends_on:
+      - image-previewer
+    volumes:
+      - "./testdata/images:/usr/share/nginx/html/images"

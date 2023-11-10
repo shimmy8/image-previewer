@@ -86,8 +86,11 @@ func TestCahceLoad(t *testing.T) {
 	testValue := []byte("value")
 
 	filename := filepath.Join(cacheFolder, base64.StdEncoding.EncodeToString([]byte(testKey)))
-	os.MkdirAll(cacheFolder, os.ModePerm)
-	os.WriteFile(filename, testValue, os.ModePerm)
+	mkErr := os.MkdirAll(cacheFolder, os.ModePerm)
+	require.NoError(t, mkErr)
+
+	writeErr := os.WriteFile(filename, testValue, os.ModePerm)
+	require.NoError(t, writeErr)
 
 	t.Run("test cache load from folder", func(t *testing.T) {
 		diskCache := New(&config.CacheConfig{MaxSize: 2, Dir: cacheFolder})

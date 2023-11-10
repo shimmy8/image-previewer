@@ -5,6 +5,7 @@ import (
 	"errors"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/shimmy8/image-previewer/internal/app"
 	"github.com/shimmy8/image-previewer/internal/config"
@@ -12,23 +13,24 @@ import (
 )
 
 type Server struct {
-	config *config.HttpConfig
+	config *config.HTTPConfig
 	app    *app.App
 
 	server *http.Server
 	logger *zap.Logger
 }
 
-func New(config *config.HttpConfig, app *app.App, logger *zap.Logger) *Server {
+func New(config *config.HTTPConfig, app *app.App, logger *zap.Logger) *Server {
 	return &Server{config: config, app: app, server: nil, logger: logger}
 }
 
 func (s *Server) Start(ctx context.Context) error {
-	handler := NewHandler(s.app, ctx, s.logger)
+	handler := NewHandler(ctx, s.app, s.logger)
 
 	s.server = &http.Server{
-		Addr:    ":" + strconv.Itoa(s.config.Port),
-		Handler: handler,
+		Addr:              ":" + strconv.Itoa(s.config.Port),
+		Handler:           handler,
+		ReadHeaderTimeout: time.Second * 1,
 	}
 
 	s.logger.Info("Starting server", zap.Int("port", s.config.Port))

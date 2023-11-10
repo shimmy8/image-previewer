@@ -3,6 +3,7 @@ package cache
 import (
 	"bufio"
 	"encoding/base64"
+	"log"
 	"os"
 	"path/filepath"
 	"sync"
@@ -18,7 +19,7 @@ type LruCache struct {
 	dir     string
 }
 
-type CacheItem struct {
+type cacheItem struct {
 	filename string
 	key      string
 }
@@ -27,7 +28,10 @@ func New(conf *config.CacheConfig) *LruCache {
 	cache := &LruCache{maxSize: conf.MaxSize, queue: NewList(), dir: conf.Dir}
 
 	if _, err := os.Stat(conf.Dir); os.IsNotExist(err) {
-		os.MkdirAll(conf.Dir, os.ModePerm)
+		dirErr := os.MkdirAll(conf.Dir, os.ModePerm)
+		if dirErr != nil {
+			log.Panic("Cache dir unavaildable")
+		}
 	} else {
 		// cache dir exists - should load cached files to mem
 		go func() {
@@ -44,7 +48,7 @@ func (c *LruCache) Get(key string) ([]byte, error) {
 	if inCache {
 		item := cachedElem.(*ListItem)
 
-		filename := item.Value.(CacheItem).filename
+		filename := item.Value.(cacheItem).filename
 		content, err := c.readFile(filename)
 		if err != nil {
 			c.removeItemAndFile(item)
@@ -65,7 +69,7 @@ func (c *LruCache) Set(key string, value []byte) error {
 	if inCache {
 		item := cachedElem.(*ListItem)
 
-		if item.Value.(CacheItem).filename == filename {
+		if item.Value.(cacheItem).filename == filename {
 			c.queue.MoveToFront(item)
 			return nil
 		}
@@ -82,7 +86,7 @@ func (c *LruCache) Set(key string, value []byte) error {
 		return err
 	}
 
-	item := c.queue.PushFront(CacheItem{filename: filename, key: key})
+	item := c.queue.PushFront(cacheItem{filename: filename, key: key})
 	c.items.Store(key, item)
 	return nil
 }
@@ -93,7 +97,7 @@ func (c *LruCache) loadFilesCache() {
 		filename := file.Name()
 		cacheKey, _ := base64.StdEncoding.DecodeString(filename)
 
-		item := c.queue.PushFront(CacheItem{filename: filepath.Join(c.dir, filename), key: string(cacheKey)})
+		item := c.queue.PushFront(cacheItem{filename: filepath.Join(c.dir, filename), key: string(cacheKey)})
 		c.items.Store(string(cacheKey), item)
 	}
 }
@@ -119,7 +123,7 @@ func (c *LruCache) readFile(filename string) ([]byte, error) {
 }
 
 func (c *LruCache) removeItemAndFile(item *ListItem) {
-	cacheItem := item.Value.(CacheItem)
+	cacheItem := item.Value.(cacheItem)
 	c.queue.Remove(item)
 	c.items.Delete(cacheItem.key)
 

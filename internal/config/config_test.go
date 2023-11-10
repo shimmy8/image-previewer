@@ -22,7 +22,7 @@ func TestConfig(t *testing.T) {
 		cnf, err := New()
 		require.NoError(t, err)
 
-		require.Equal(t, testPort, cnf.Http.Port)
+		require.Equal(t, testPort, cnf.HTTP.Port)
 		require.Equal(t, testCacheSize, cnf.Cache.MaxSize)
 		require.Equal(t, testCacheDir, cnf.Cache.Dir)
 	})

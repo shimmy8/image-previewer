@@ -2,7 +2,6 @@ package resizer
 
 import (
 	"bufio"
-	"context"
 	"fmt"
 	"image"
 	"os"
@@ -15,9 +14,8 @@ func loadImage(path string) []byte {
 	file, err := os.Open(path)
 	if err != nil {
 		fmt.Println(err)
-		os.Exit(1)
+		return nil
 	}
-
 	defer file.Close()
 
 	fileInfo, _ := file.Stat()
@@ -27,7 +25,7 @@ func loadImage(path string) []byte {
 	_, err = buffer.Read(bytes)
 	if err != nil {
 		fmt.Println(err)
-		os.Exit(1)
+		return nil
 	}
 
 	return bytes
@@ -40,7 +38,7 @@ func TestResizeImages(t *testing.T) {
 		jpegImgBytes := loadImage("../../../testdata/images/gopher_50x50.jpg")
 		jpegSmallImgBytes := loadImage("../../../testdata/images/gopher_20x20.jpg")
 
-		res, err := resizer.ResizeImage(context.Background(), jpegImgBytes, 20, 20)
+		res, err := resizer.ResizeImage(jpegImgBytes, 20, 20)
 
 		require.NoError(t, err)
 		require.Equal(t, jpegSmallImgBytes, res)
@@ -50,7 +48,7 @@ func TestResizeImages(t *testing.T) {
 		pngImgBytes := loadImage("../../../testdata/images/gopher_500x500.png")
 		pngSmallImgBytes := loadImage("../../../testdata/images/gopher_100x100.png")
 
-		res, err := resizer.ResizeImage(context.Background(), pngImgBytes, 100, 100)
+		res, err := resizer.ResizeImage(pngImgBytes, 100, 100)
 
 		require.NoError(t, err)
 		require.Equal(t, pngSmallImgBytes, res)
@@ -60,7 +58,7 @@ func TestResizeImages(t *testing.T) {
 		bmpImgBytes := loadImage("../../../testdata/images/gopher_320x240.bmp")
 		bmpSmallImgBytes := loadImage("../../../testdata/images/gopher_100x100.bmp")
 
-		res, err := resizer.ResizeImage(context.Background(), bmpImgBytes, 100, 100)
+		res, err := resizer.ResizeImage(bmpImgBytes, 100, 100)
 
 		require.NoError(t, err)
 		require.Equal(t, bmpSmallImgBytes, res)
@@ -69,7 +67,7 @@ func TestResizeImages(t *testing.T) {
 	t.Run("test err not supported", func(t *testing.T) {
 		gifImgBytes := loadImage("../../../testdata/images/monkey_90x90.gif")
 
-		_, err := resizer.ResizeImage(context.Background(), gifImgBytes, 10, 10)
+		_, err := resizer.ResizeImage(gifImgBytes, 10, 10)
 
 		require.ErrorIs(t, err, ErrFormatNotSupported)
 	})
@@ -77,7 +75,7 @@ func TestResizeImages(t *testing.T) {
 	t.Run("test err not image", func(t *testing.T) {
 		gifImgBytes := loadImage("../../../testdata/not_image.txt")
 
-		_, err := resizer.ResizeImage(context.Background(), gifImgBytes, 10, 10)
+		_, err := resizer.ResizeImage(gifImgBytes, 10, 10)
 
 		require.ErrorIs(t, err, image.ErrFormat)
 	})

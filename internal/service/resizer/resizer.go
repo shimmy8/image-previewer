@@ -2,7 +2,6 @@ package resizer
 
 import (
 	"bytes"
-	"context"
 	"image"
 	"image/jpeg"
 	"image/png"
@@ -12,14 +11,17 @@ import (
 	"golang.org/x/image/bmp"
 )
 
-type Resizer struct {
-}
+type Resizer struct{}
 
 func New() *Resizer {
 	return &Resizer{}
 }
 
-func (r *Resizer) ResizeImage(ctx context.Context, imageBytes []byte, targetWitdh int, targetHeigth int) ([]byte, error) {
+func (r *Resizer) ResizeImage(
+	imageBytes []byte,
+	targetWitdh int,
+	targetHeigth int,
+) ([]byte, error) {
 	img, imgFmt, err := image.Decode(bytes.NewReader(imageBytes))
 	if err != nil {
 		return nil, err

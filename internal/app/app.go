@@ -29,7 +29,13 @@ func New(cacheConfig *config.CacheConfig, logger *zap.Logger) *App {
 	}
 }
 
-func (a *App) ResizeImage(ctx context.Context, headers map[string][]string, url string, width int, heigth int) ([]byte, error) {
+func (a *App) ResizeImage(
+	ctx context.Context,
+	headers map[string][]string,
+	url string,
+	width int,
+	heigth int,
+) ([]byte, error) {
 	imgCacheKey := strings.Join([]string{strconv.Itoa(width), strconv.Itoa(heigth), url}, ":")
 
 	cachedResult, err := a.cache.Get(imgCacheKey)
@@ -47,7 +53,7 @@ func (a *App) ResizeImage(ctx context.Context, headers map[string][]string, url 
 		return nil, err
 	}
 
-	resizedImg, err := a.resizer.ResizeImage(ctx, originalImg, width, heigth)
+	resizedImg, err := a.resizer.ResizeImage(originalImg, width, heigth)
 	if err != nil {
 		a.logger.Named("resizer").Error("Resize", zap.Error(err))
 		return nil, err

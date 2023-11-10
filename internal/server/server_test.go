@@ -14,7 +14,8 @@ import (
 
 func TestServerErrors(t *testing.T) {
 	logger, _ := zap.NewDevelopment()
-	mockApp := app.New(&config.CacheConfig{}, logger)
+	config, _ := config.New()
+	mockApp := app.New(config.Cache, logger)
 
 	mockHandler := Handler{app: mockApp, logger: logger}
 
@@ -37,14 +38,16 @@ func TestServerErrors(t *testing.T) {
 			tt := tt
 			t.Run("expected err "+tt.Error.Error(), func(t *testing.T) {
 				req := httptest.NewRequest(http.MethodGet, tt.URL, nil)
-				res := httptest.NewRecorder()
+				rec := httptest.NewRecorder()
 
-				mockHandler.handleResizeRequest(res, req)
+				mockHandler.handleResizeRequest(rec, req)
 
-				require.Equal(t, tt.StatusCode, res.Result().StatusCode)
-				require.Equal(t, tt.Error.Error(), strings.TrimRight(res.Body.String(), "\n"))
+				res := rec.Result()
+				defer res.Body.Close()
+
+				require.Equal(t, tt.StatusCode, res.StatusCode)
+				require.Equal(t, tt.Error.Error(), strings.TrimRight(rec.Body.String(), "\n"))
 			})
 		}
 	})
-
 }

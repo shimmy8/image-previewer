@@ -6,8 +6,7 @@ import (
 	"net/http"
 )
 
-type ImgProxy struct {
-}
+type ImgProxy struct{}
 
 func New() *ImgProxy {
 	return &ImgProxy{}
