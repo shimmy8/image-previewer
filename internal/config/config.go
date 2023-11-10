@@ -39,9 +39,7 @@ func parseEnv(cnf interface{}) error {
 	confPtr := reflect.ValueOf(cnf)
 	ref := confPtr.Elem()
 
-	a := ref.Kind()
-
-	if a != reflect.Struct {
+	if a := ref.Kind(); a != reflect.Struct {
 		return ErrInvalidConfig
 	}
 

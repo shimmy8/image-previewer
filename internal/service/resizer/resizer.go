@@ -43,8 +43,7 @@ func (r *Resizer) ResizeImage(
 	res := imaging.Fill(img, targetWitdh, targetHeigth, imaging.Center, imaging.Lanczos)
 
 	buf := new(bytes.Buffer)
-	encodeErr := encoder(buf, res)
-	if encodeErr != nil {
+	if encodeErr := encoder(buf, res); encodeErr != nil {
 		return nil, err
 	}
 

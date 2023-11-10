@@ -87,8 +87,7 @@ func (h *Handler) handleResizeRequest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, writeErr := w.Write(result)
-	if writeErr != nil {
+	if _, writeErr := w.Write(result); writeErr != nil {
 		h.logger.Error("Write response error", zap.Error(writeErr))
 	}
 }
