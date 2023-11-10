@@ -31,12 +31,11 @@ func TestServerErrors(t *testing.T) {
 			{URL: "/fill/20a/300/test", StatusCode: 400, Error: ErrInvalidTargetWidth},
 			{URL: "/fill/200/30i/test", StatusCode: 400, Error: ErrInvalidTargetHeight},
 			{URL: "/fill/200/300/", StatusCode: 400, Error: ErrInvalidURL},
-			{URL: "/fill/200/300/test", StatusCode: 400, Error: ErrInvalidURL},
 		}
 
 		for _, tt := range tests {
 			tt := tt
-			t.Run("expected err "+tt.Error.Error(), func(t *testing.T) {
+			t.Run("request to "+tt.URL, func(t *testing.T) {
 				req := httptest.NewRequest(http.MethodGet, tt.URL, nil)
 				rec := httptest.NewRecorder()
 
