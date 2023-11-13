@@ -25,7 +25,7 @@ type cacheItem struct {
 }
 
 func New(conf *config.CacheConfig) *LruCache {
-	cache := &LruCache{maxSize: conf.MaxSize, queue: NewList(), dir: conf.Dir}
+	cache := &LruCache{maxSize: conf.MaxElemCnt, queue: NewList(), dir: conf.Dir}
 
 	if _, err := os.Stat(conf.Dir); os.IsNotExist(err) {
 		dirErr := os.MkdirAll(conf.Dir, os.ModePerm)

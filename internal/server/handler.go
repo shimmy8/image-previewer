@@ -28,7 +28,13 @@ func NewHandler(ctx context.Context, app *app.App, logger *zap.Logger) *http.Ser
 
 func loggingMiddleware(h http.HandlerFunc, logger *zap.Logger) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		logger.Info("Reqeust start", zap.String("URL", r.URL.String()), zap.String("method", r.Method))
+		logger.Info(
+			"Reqeust start",
+			zap.String("URL", r.URL.String()),
+			zap.String("method", r.Method),
+			zap.String("User-Agent", r.UserAgent()),
+			zap.String("Remote addr", r.RemoteAddr),
+		)
 		h(w, r)
 	}
 }

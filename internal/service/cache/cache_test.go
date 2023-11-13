@@ -13,7 +13,7 @@ import (
 
 func TestCacheGetSet(t *testing.T) {
 	cacheFolder := "./testcache"
-	diskCache := New(&config.CacheConfig{MaxSize: 4, Dir: cacheFolder})
+	diskCache := New(&config.CacheConfig{MaxElemCnt: 4, Dir: cacheFolder})
 	cacheBytes := []byte("some")
 
 	defer func() { os.RemoveAll(cacheFolder) }()
@@ -36,7 +36,7 @@ func TestCacheGetSet(t *testing.T) {
 
 	t.Run("test cache max size", func(t *testing.T) {
 		cacheFolder2 := "./testcache2"
-		newCache := New(&config.CacheConfig{MaxSize: 2, Dir: cacheFolder2})
+		newCache := New(&config.CacheConfig{MaxElemCnt: 2, Dir: cacheFolder2})
 
 		defer func() { os.RemoveAll(cacheFolder2) }()
 
@@ -93,7 +93,7 @@ func TestCahceLoad(t *testing.T) {
 	require.NoError(t, writeErr)
 
 	t.Run("test cache load from folder", func(t *testing.T) {
-		diskCache := New(&config.CacheConfig{MaxSize: 2, Dir: cacheFolder})
+		diskCache := New(&config.CacheConfig{MaxElemCnt: 2, Dir: cacheFolder})
 
 		time.Sleep(time.Millisecond * 1)
 

@@ -17,8 +17,8 @@ type HTTPConfig struct {
 }
 
 type CacheConfig struct {
-	MaxSize int    `env:"CACHE_MAX_SIZE" default:"50"`
-	Dir     string `env:"CACHE_DIR" default:"./filecache"`
+	MaxElemCnt int    `env:"CACHE_MAX_ELEM_CNT" default:"50"`
+	Dir        string `env:"CACHE_DIR" default:"./filecache"`
 }
 
 func New() (*Config, error) {
@@ -38,10 +38,6 @@ func New() (*Config, error) {
 func parseEnv(cnf interface{}) error {
 	confPtr := reflect.ValueOf(cnf)
 	ref := confPtr.Elem()
-
-	if a := ref.Kind(); a != reflect.Struct {
-		return ErrInvalidConfig
-	}
 
 	for _, f := range reflect.VisibleFields(ref.Type()) {
 		envName := f.Tag.Get("env")
