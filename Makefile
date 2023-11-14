@@ -1,4 +1,4 @@
-BIN := "./bin/calendar"
+BIN := "./bin/image-previewer"
 DOCKER_IMG="image-previewer-img"
 SERVICE_NAME="image-previewer"
 
@@ -13,6 +13,12 @@ run: build-img
 
 test:
 	go test -race ./internal/...
+
+install-lint-deps:
+	(which golangci-lint > /dev/null) || curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(shell go env GOPATH)/bin v1.55.2
+
+lint: install-lint-deps
+	golangci-lint run ./...
 
 build-img:
 	docker build \
