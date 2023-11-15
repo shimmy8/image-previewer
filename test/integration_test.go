@@ -2,21 +2,25 @@ package integration_test
 
 import (
 	"bufio"
+	"context"
 	"fmt"
 	"io"
 	"net/http"
 	"os"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/require"
 )
 
 func makeRequest(url string) (status int, body []byte) {
-	req, _ := http.NewRequest(http.MethodGet, url, nil)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*1)
+	defer cancel()
+
+	req, _ := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 
 	client := http.Client{}
 	res, err := client.Do(req)
-
 	if err != nil {
 		fmt.Printf("%v", err)
 	}
@@ -26,6 +30,8 @@ func makeRequest(url string) (status int, body []byte) {
 	}
 
 	resData, _ := io.ReadAll(res.Body)
+	defer res.Body.Close()
+
 	return res.StatusCode, resData
 }
 

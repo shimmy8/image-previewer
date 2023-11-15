@@ -71,7 +71,12 @@ func (h *Handler) handleResizeRequest(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (h *Handler) parseResizeIimageArgs(requestPath string) (imageURL string, targetWidth int, targetHeight int, parseErr error) {
+func (h *Handler) parseResizeIimageArgs(requestPath string) (
+	imageURL string,
+	targetWidth int,
+	targetHeight int,
+	parseErr error,
+) {
 	// e.g /fill/300/200/url
 	pathWithoutRoot := strings.Replace(requestPath, "/fill/", "", 1)
 	pathArgs := strings.SplitN(pathWithoutRoot, "/", 3)
@@ -96,14 +101,14 @@ func (h *Handler) parseResizeIimageArgs(requestPath string) (imageURL string, ta
 		return imageURL, targetWidth, targetHeight, parseErr
 	}
 
-	rawImageUrl := pathArgs[2]
+	rawImageURL := pathArgs[2]
 	scheme := "https"
-	if strings.HasPrefix(rawImageUrl, "http:/") {
-		rawImageUrl = strings.Replace(rawImageUrl, "http:/", "", 1)
+	if strings.HasPrefix(rawImageURL, "http:/") {
+		rawImageURL = strings.Replace(rawImageURL, "http:/", "", 1)
 		scheme = "http"
 	}
 
-	imgURL, uErr := url.Parse(rawImageUrl)
+	imgURL, uErr := url.Parse(rawImageURL)
 	if uErr != nil {
 		h.logger.Error("URL parse error", zap.String("parsed URL", pathArgs[2]), zap.Error(uErr))
 		parseErr = ErrInvalidURL
