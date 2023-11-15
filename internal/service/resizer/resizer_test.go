@@ -35,8 +35,8 @@ func TestResizeImages(t *testing.T) {
 	resizer := New()
 
 	t.Run("test resize jpeg", func(t *testing.T) {
-		jpegImgBytes := loadImage("../../../testdata/images/gopher_50x50.jpg")
-		jpegSmallImgBytes := loadImage("../../../testdata/images/gopher_20x20.jpg")
+		jpegImgBytes := loadImage("../../../test/testdata/images/gopher_50x50.jpg")
+		jpegSmallImgBytes := loadImage("../../../test/testdata/images/gopher_20x20.jpg")
 
 		res, err := resizer.ResizeImage(jpegImgBytes, 20, 20)
 
@@ -45,8 +45,8 @@ func TestResizeImages(t *testing.T) {
 	})
 
 	t.Run("test resize png", func(t *testing.T) {
-		pngImgBytes := loadImage("../../../testdata/images/gopher_500x500.png")
-		pngSmallImgBytes := loadImage("../../../testdata/images/gopher_100x100.png")
+		pngImgBytes := loadImage("../../../test/testdata/images/gopher_500x500.png")
+		pngSmallImgBytes := loadImage("../../../test/testdata/images/gopher_100x100.png")
 
 		res, err := resizer.ResizeImage(pngImgBytes, 100, 100)
 
@@ -55,8 +55,8 @@ func TestResizeImages(t *testing.T) {
 	})
 
 	t.Run("test resize bmp", func(t *testing.T) {
-		bmpImgBytes := loadImage("../../../testdata/images/gopher_320x240.bmp")
-		bmpSmallImgBytes := loadImage("../../../testdata/images/gopher_100x100.bmp")
+		bmpImgBytes := loadImage("../../../test/testdata/images/gopher_320x240.bmp")
+		bmpSmallImgBytes := loadImage("../../../test/testdata/images/gopher_100x100.bmp")
 
 		res, err := resizer.ResizeImage(bmpImgBytes, 100, 100)
 
@@ -65,7 +65,7 @@ func TestResizeImages(t *testing.T) {
 	})
 
 	t.Run("test err not supported", func(t *testing.T) {
-		gifImgBytes := loadImage("../../../testdata/images/monkey_90x90.gif")
+		gifImgBytes := loadImage("../../../test/testdata/images/monkey_90x90.gif")
 
 		_, err := resizer.ResizeImage(gifImgBytes, 10, 10)
 
@@ -73,7 +73,7 @@ func TestResizeImages(t *testing.T) {
 	})
 
 	t.Run("test err not image", func(t *testing.T) {
-		gifImgBytes := loadImage("../../../testdata/not_image.txt")
+		gifImgBytes := loadImage("../../../test/testdata/not_image.txt")
 
 		_, err := resizer.ResizeImage(gifImgBytes, 10, 10)
 

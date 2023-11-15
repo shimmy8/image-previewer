@@ -11,8 +11,14 @@ build:
 run: build-img
 	docker-compose up -d  $(SERVICE_NAME)
 
-test:
+test: unit-test integration-test
+
+unit-test:
 	go test -race ./internal/...
+
+integration-test: run
+	docker-compose up -d nginx
+	go test ./test/...
 
 install-lint-deps:
 	(which golangci-lint > /dev/null) || curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(shell go env GOPATH)/bin v1.55.2
@@ -27,4 +33,4 @@ build-img:
 		-f build/Dockerfile .
 
 
-.PHONY: build run build-img test lint
+.PHONY: build run build-img test lint integration-test unit-test
