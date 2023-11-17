@@ -3,10 +3,12 @@ package integration_test
 import (
 	"bufio"
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
 	"os"
+	"path/filepath"
 	"testing"
 	"time"
 
@@ -14,7 +16,7 @@ import (
 )
 
 func makeRequest(url string) (status int, body []byte) {
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second*1)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
 
 	req, _ := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
@@ -23,10 +25,6 @@ func makeRequest(url string) (status int, body []byte) {
 	res, err := client.Do(req)
 	if err != nil {
 		fmt.Printf("%v", err)
-	}
-
-	if res.StatusCode != http.StatusOK {
-		return res.StatusCode, nil
 	}
 
 	resData, _ := io.ReadAll(res.Body)
@@ -82,8 +80,73 @@ func TestResizeErrors(t *testing.T) {
 	})
 
 	t.Run("test image server error", func(t *testing.T) {
-		status, _ := makeRequest("http://localhost:8080/fill/444/555/http:/nginx/500")
+		status, body := makeRequest("http://localhost:8080/fill/444/555/http:/nginx/500")
 
 		require.Equal(t, http.StatusBadGateway, status)
+		require.Equal(t, []byte("err_get_image_http_not_ok\n"), body)
+	})
+
+	t.Run("test server unavailable", func(t *testing.T) {
+		status, body := makeRequest("http://localhost:8080/fill/444/555/not-available-server.com/image.png")
+
+		require.Equal(t, http.StatusBadGateway, status)
+		require.Equal(t, []byte("err_get_image\n"), body)
+	})
+
+	t.Run("test image format not supported", func(t *testing.T) {
+		status, body := makeRequest("http://localhost:8080/fill/444/555/http:/nginx/images/monkey_90x90.gif")
+
+		require.Equal(t, http.StatusBadGateway, status)
+		require.Equal(t, []byte("err_image_format\n"), body)
+	})
+
+	t.Run("test not an image", func(t *testing.T) {
+		status, body := makeRequest("http://localhost:8080/fill/444/555/http:/nginx/not_image")
+
+		require.Equal(t, http.StatusBadGateway, status)
+		require.Equal(t, []byte("err_not_an_image\n"), body)
+	})
+
+	t.Run("test cached image", func(t *testing.T) {
+		sourceImage := loadLocalImage("./testdata/images/gopher_500x500.png")
+		imgCopyFilename := "gopher_copy.png"
+		imgCopyFullName := filepath.Join("./testdata/images/", imgCopyFilename)
+
+		// create copy of a file at the folder, available to nginx
+		writeErr := os.WriteFile(imgCopyFullName, sourceImage, os.ModePerm)
+		defer func() {
+			// cleanup if smth wnt wrong during test an file was not deleted
+			if _, err := os.Stat(imgCopyFullName); errors.Is(err, os.ErrNotExist) {
+				return
+			}
+			os.Remove(imgCopyFullName)
+		}()
+
+		require.NoError(t, writeErr)
+
+		nginxFileUrl := fmt.Sprintf("http://localhost:80/images/%s", imgCopyFilename)
+		// make sure file created
+		ngnixStatus, _ := makeRequest(nginxFileUrl)
+		require.Equal(t, http.StatusOK, ngnixStatus)
+
+		resizeUrl := fmt.Sprintf(
+			"http://localhost:8080/fill/100/50/http:/nginx/images/%s",
+			imgCopyFilename,
+		)
+
+		// request file size change with new filename
+		status, _ := makeRequest(resizeUrl)
+		require.Equal(t, http.StatusOK, status)
+
+		// now delete file from disk
+		os.Remove(imgCopyFullName)
+		// make sure file deleted
+		ngnixRepStatus, _ := makeRequest(nginxFileUrl)
+		require.Equal(t, http.StatusNotFound, ngnixRepStatus)
+
+		// requiest a resize again
+		repStatus, _ := makeRequest(resizeUrl)
+		// voila! cached fili is still there
+		require.Equal(t, http.StatusOK, repStatus)
 	})
 }

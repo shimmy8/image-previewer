@@ -2,6 +2,8 @@ package resizer
 
 import (
 	"bytes"
+	"errors"
+	"fmt"
 	"image"
 	"image/jpeg"
 	"image/png"
@@ -24,6 +26,9 @@ func (r *Resizer) ResizeImage(
 ) ([]byte, error) {
 	img, imgFmt, err := image.Decode(bytes.NewReader(imageBytes))
 	if err != nil {
+		if errors.Is(err, image.ErrFormat) {
+			return nil, fmt.Errorf("%w: %w", ErrNotAnImage, err)
+		}
 		return nil, err
 	}
 

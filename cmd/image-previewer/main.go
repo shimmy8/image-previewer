@@ -28,8 +28,8 @@ func main() {
 		logger.Named("main").Error("Config parse error", zap.Error(err))
 	}
 
-	app := app.New(config.Cache, logger.Named("app"))
-	server := server.New(config.HTTP, app, logger.Named("server"))
+	app := app.New(config.Cache.MaxElemCnt, config.Cache.Dir, config.Proxy.Timeout, logger.Named("app"))
+	server := server.New(config.HTTP.Port, app, logger.Named("server"))
 
 	ctx, cancel := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM, syscall.SIGHUP)
 	defer cancel()

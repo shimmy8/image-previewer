@@ -10,6 +10,7 @@ import (
 type Config struct {
 	HTTP  *HTTPConfig
 	Cache *CacheConfig
+	Proxy *ProxyConfig
 }
 
 type HTTPConfig struct {
@@ -19,6 +20,10 @@ type HTTPConfig struct {
 type CacheConfig struct {
 	MaxElemCnt int    `env:"CACHE_MAX_ELEM_CNT" default:"50"`
 	Dir        string `env:"CACHE_DIR" default:"./filecache"`
+}
+
+type ProxyConfig struct {
+	Timeout int `env:"PROXY_TIMEOUT" default:"2"`
 }
 
 func New() (*Config, error) {
@@ -32,7 +37,12 @@ func New() (*Config, error) {
 		return nil, err
 	}
 
-	return &Config{HTTP: httpCnf, Cache: cacheCnf}, nil
+	proxyCnf := &ProxyConfig{}
+	if err := parseEnv(proxyCnf); err != nil {
+		return nil, err
+	}
+
+	return &Config{HTTP: httpCnf, Cache: cacheCnf, Proxy: proxyCnf}, nil
 }
 
 func parseEnv(cnf interface{}) error {
