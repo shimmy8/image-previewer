@@ -29,7 +29,7 @@ func New(cacheConfig *config.CacheConfig, logger *zap.Logger) *App {
 	}
 }
 
-func (a *App) ResizeImage(
+func (a *App) GetResizedImage(
 	ctx context.Context,
 	headers map[string][]string,
 	url string,
