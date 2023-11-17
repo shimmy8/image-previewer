@@ -124,29 +124,29 @@ func TestResizeErrors(t *testing.T) {
 
 		require.NoError(t, writeErr)
 
-		nginxFileUrl := fmt.Sprintf("http://localhost:80/images/%s", imgCopyFilename)
+		nginxFileURL := fmt.Sprintf("http://localhost:80/images/%s", imgCopyFilename)
 		// make sure file created
-		ngnixStatus, _ := makeRequest(nginxFileUrl)
+		ngnixStatus, _ := makeRequest(nginxFileURL)
 		require.Equal(t, http.StatusOK, ngnixStatus)
 
-		resizeUrl := fmt.Sprintf(
+		resizeURL := fmt.Sprintf(
 			"http://localhost:8080/fill/100/50/http:/nginx/images/%s",
 			imgCopyFilename,
 		)
 
 		// request file size change with new filename
-		status, _ := makeRequest(resizeUrl)
+		status, _ := makeRequest(resizeURL)
 		require.Equal(t, http.StatusOK, status)
 
 		// now delete file from disk
 		os.Remove(imgCopyFullName)
 		// make sure file deleted
-		ngnixRepStatus, _ := makeRequest(nginxFileUrl)
+		ngnixRepStatus, _ := makeRequest(nginxFileURL)
 		require.Equal(t, http.StatusNotFound, ngnixRepStatus)
 
 		// requiest a resize again
-		repStatus, _ := makeRequest(resizeUrl)
-		// voila! cached fili is still there
+		repStatus, _ := makeRequest(resizeURL)
+		// voila! cached file is still there
 		require.Equal(t, http.StatusOK, repStatus)
 	})
 }
