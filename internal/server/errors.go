@@ -9,8 +9,6 @@ var (
 	ErrInvalidURL           = errors.New("invalid image URL")
 )
 
-// type ResponseErrorCode string
-
 const (
 	ErrProxyNotOkResponse     string = "err_get_image_http_not_ok"
 	ErrProxyGetImageResponse  string = "err_get_image"
