@@ -2,10 +2,11 @@ package app
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"strconv"
 	"strings"
 
-	"github.com/shimmy8/image-previewer/internal/config"
 	"github.com/shimmy8/image-previewer/internal/service/cache"
 	"github.com/shimmy8/image-previewer/internal/service/imgproxy"
 	"github.com/shimmy8/image-previewer/internal/service/resizer"
@@ -20,11 +21,11 @@ type App struct {
 	logger *zap.Logger
 }
 
-func New(cacheConfig *config.CacheConfig, logger *zap.Logger) *App {
+func New(cacheMaxSize int, cacheDir string, proxyTimeout int, logger *zap.Logger) *App {
 	return &App{
-		imgProxy: imgproxy.New(),
+		imgProxy: imgproxy.New(proxyTimeout),
 		resizer:  resizer.New(),
-		cache:    cache.New(cacheConfig),
+		cache:    cache.New(cacheMaxSize, cacheDir),
 		logger:   logger,
 	}
 }
@@ -50,13 +51,23 @@ func (a *App) GetResizedImage(
 	originalImg, err := a.imgProxy.GetImage(ctx, url, headers)
 	if err != nil {
 		a.logger.Named("imgProxy").Error("Get from url", zap.String("url", url), zap.Error(err))
-		return nil, err
+		if errors.Is(err, imgproxy.ErrResponseNotOk) {
+			return nil, fmt.Errorf("%w: %w", ErrProxyResponseNotOk, err)
+		}
+		return nil, fmt.Errorf("%w: %w", ErrProxyGetImage, err)
 	}
 
 	resizedImg, err := a.resizer.ResizeImage(originalImg, width, heigth)
 	if err != nil {
 		a.logger.Named("resizer").Error("Resize", zap.Error(err))
-		return nil, err
+		switch {
+		case errors.Is(err, resizer.ErrFormatNotSupported):
+			return nil, fmt.Errorf("%w: %w", ErrImageFormat, err)
+		case errors.Is(err, resizer.ErrNotAnImage):
+			return nil, fmt.Errorf("%w: %w", ErrFileNotAnImage, err)
+		default:
+			return nil, fmt.Errorf("%w: %w", ErrResizeImage, err)
+		}
 	}
 
 	cacheSetErr := a.cache.Set(imgCacheKey, resizedImg)

@@ -4,16 +4,22 @@ import (
 	"context"
 	"io"
 	"net/http"
+	"time"
 )
 
-type ImgProxy struct{}
+type ImgProxy struct {
+	timeout int
+}
 
-func New() *ImgProxy {
-	return &ImgProxy{}
+func New(timeout int) *ImgProxy {
+	return &ImgProxy{timeout: timeout}
 }
 
 func (iprx *ImgProxy) GetImage(ctx context.Context, url string, headers map[string][]string) ([]byte, error) {
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
+	rqCtx, cancel := context.WithTimeout(ctx, time.Second*time.Duration(iprx.timeout))
+	defer cancel()
+
+	req, err := http.NewRequestWithContext(rqCtx, http.MethodGet, url, nil)
 	if err != nil {
 		return nil, err
 	}

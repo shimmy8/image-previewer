@@ -7,8 +7,6 @@ import (
 	"os"
 	"path/filepath"
 	"sync"
-
-	"github.com/shimmy8/image-previewer/internal/config"
 )
 
 type LruCache struct {
@@ -24,11 +22,11 @@ type cacheItem struct {
 	key      string
 }
 
-func New(conf *config.CacheConfig) *LruCache {
-	cache := &LruCache{maxSize: conf.MaxElemCnt, queue: NewList(), dir: conf.Dir}
+func New(maxSize int, cacheDir string) *LruCache {
+	cache := &LruCache{maxSize: maxSize, queue: NewList(), dir: cacheDir}
 
-	if _, err := os.Stat(conf.Dir); os.IsNotExist(err) {
-		dirErr := os.MkdirAll(conf.Dir, os.ModePerm)
+	if _, err := os.Stat(cacheDir); os.IsNotExist(err) {
+		dirErr := os.MkdirAll(cacheDir, os.ModePerm)
 		if dirErr != nil {
 			log.Panic("Cache dir unavaildable")
 		}

@@ -19,11 +19,15 @@ func TestConfig(t *testing.T) {
 		testCacheDir := "/tmp/cache"
 		os.Setenv("CACHE_DIR", testCacheDir)
 
+		testProxyTimeout := 12
+		os.Setenv("PROXY_TIMEOUT", strconv.Itoa(testProxyTimeout))
+
 		cnf, err := New()
 		require.NoError(t, err)
 
 		require.Equal(t, testPort, cnf.HTTP.Port)
 		require.Equal(t, testCacheSize, cnf.Cache.MaxElemCnt)
 		require.Equal(t, testCacheDir, cnf.Cache.Dir)
+		require.Equal(t, testProxyTimeout, cnf.Proxy.Timeout)
 	})
 }

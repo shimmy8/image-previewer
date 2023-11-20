@@ -9,7 +9,6 @@ import (
 	"strings"
 
 	"github.com/shimmy8/image-previewer/internal/app"
-	"github.com/shimmy8/image-previewer/internal/service/imgproxy"
 	"go.uber.org/zap"
 )
 
@@ -58,11 +57,20 @@ func (h *Handler) handleResizeRequest(w http.ResponseWriter, r *http.Request) {
 			zap.Int("heigth", targetHeight),
 			zap.Error(err),
 		)
-		if errors.Is(err, imgproxy.ErrResponseNotOk) {
-			http.Error(w, "image URL unavailable", http.StatusBadGateway)
-		} else {
-			http.Error(w, "internal error", http.StatusInternalServerError)
+
+		switch {
+		case errors.Is(err, app.ErrProxyResponseNotOk):
+			http.Error(w, ErrProxyNotOkResponse, http.StatusBadGateway)
+		case errors.Is(err, app.ErrProxyGetImage):
+			http.Error(w, ErrProxyGetImageResponse, http.StatusBadGateway)
+		case errors.Is(err, app.ErrFileNotAnImage):
+			http.Error(w, ErrFileNotAnImageResponse, http.StatusBadGateway)
+		case errors.Is(err, app.ErrImageFormat):
+			http.Error(w, ErrImageFormatResponse, http.StatusBadGateway)
+		default:
+			http.Error(w, ErrUnknownResponse, http.StatusInternalServerError)
 		}
+
 		return
 	}
 

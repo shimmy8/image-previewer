@@ -8,3 +8,12 @@ var (
 	ErrInvalidTargetHeight  = errors.New("invalid target image heigth")
 	ErrInvalidURL           = errors.New("invalid image URL")
 )
+
+const (
+	ErrProxyNotOkResponse     string = "err_get_image_http_not_ok"
+	ErrProxyGetImageResponse  string = "err_get_image"
+	ErrImageResizeResponse    string = "err_image_resize"
+	ErrImageFormatResponse    string = "err_image_format"
+	ErrFileNotAnImageResponse string = "err_not_an_image"
+	ErrUnknownResponse        string = "err_unknown"
+)

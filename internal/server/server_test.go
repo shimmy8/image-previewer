@@ -7,15 +7,13 @@ import (
 	"testing"
 
 	"github.com/shimmy8/image-previewer/internal/app"
-	"github.com/shimmy8/image-previewer/internal/config"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/zap"
 )
 
 func TestServerErrors(t *testing.T) {
 	logger, _ := zap.NewDevelopment()
-	config, _ := config.New()
-	mockApp := app.New(config.Cache, logger)
+	mockApp := app.New(10, "./", 2, logger)
 
 	mockHandler := Handler{app: mockApp, logger: logger}
 
